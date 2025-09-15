@@ -1,0 +1,87 @@
+class Node{
+    public:
+    int k,v;
+    Node *next , *prev;
+    Node(int key , int val){
+        k = key;
+        v = val;
+        next = nullptr;
+        prev = nullptr;
+    }
+};
+
+void insertBeforeTail(Node * nn , Node  *tail){
+    Node * t = tail->prev;
+    nn->next = tail;
+    nn->prev = t;
+    t->next = nn;
+    tail->prev = nn;
+}
+void isolateNode(Node * temp){
+    Node * t1 = temp->prev;
+    Node * t2 = temp->next;
+    t1->next = t2;
+    t2->prev = t1;
+}
+
+class LRUCache {
+private :
+int c =0;
+Node * H ; // fake head 
+Node * T ; // fake tail
+// to avoid edge cases
+unordered_map <int,Node *> um;
+public:
+    LRUCache(int capacity) {
+        c =capacity;
+        H = new Node(-1,-1);
+        T = new Node(-1,-1);
+        H->next = T;
+        T->prev = H;
+    }
+    
+    int get(int key) {
+        if(um.find(key)==um.end()){
+            return -1;
+        }
+        else{
+            Node * temp = um[key];
+            //isolate and move to end before tail
+            isolateNode(temp);
+            insertBeforeTail(temp,T);
+            return temp->v;
+        }
+    }
+    
+    void put(int key, int value) {
+        if(um.find(key)==um.end()){
+            if(um.size()==c){
+               //isolate first element
+               Node * temp = H->next;
+               isolateNode(temp);
+               int keytoRemove = temp->k;
+               um.erase(keytoRemove);
+               delete temp;
+            }
+            //insert before tail
+            Node * nn = new Node(key,value);
+            insertBeforeTail(nn,T);
+            um[key] = nn;
+
+        }
+        else{
+            Node * temp = um[key];
+            isolateNode(temp);
+            temp->v =value;
+            //now insert before tail
+            insertBeforeTail(temp,T); 
+        }
+    }
+};
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache* obj = new LRUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
+ */
