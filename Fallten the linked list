@@ -1,0 +1,51 @@
+/*
+class Node {
+public:
+    int data;
+    Node* next;
+    Node* bottom;
+
+    Node(int x) {
+        data = x;
+        next = NULL;
+        bottom = NULL;
+    }
+};
+*/
+Node * merge(Node * h1, Node * h2){
+    if(h1==nullptr){
+        return h2;
+    }
+    if(h2==nullptr){
+        return h1;
+    }
+    if(h1->data < h2->data){
+        h1->bottom = merge(h1->bottom,h2);
+        return h1;
+    }
+    else{
+        h2->bottom = merge(h1,h2->bottom);
+        return h2;
+    }
+}
+class Solution {
+  public:
+    Node *flatten(Node *root) {
+        if(root==nullptr){
+            return nullptr;
+        }
+        // code here
+        Node * curr = root;  // 1 tail
+        Node * next = curr->next; //2 tail
+        
+        curr->next =nullptr; // break 1 tail with 2 tail
+        
+        while(next!=nullptr){
+            Node * nextNode = next->next; // 3 rd tail
+            next ->next = nullptr; // break 2 tail with 3rd tail
+            curr = merge(curr,next); // merge tail 1 and 2 with 1 tail
+            next = nextNode; // now 3rd tail will become 2 nd tail
+        }
+        return curr; //return 1 tail
+    }
+};
